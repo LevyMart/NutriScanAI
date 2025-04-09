@@ -1,11 +1,40 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { db } from "./db";
+import * as schema from "@shared/schema";
+
+// Inicializar o banco de dados com os idiomas suportados
+async function initializeDatabase() {
+  try {
+    // Verificar se já existem idiomas cadastrados
+    const languages = await db.select().from(schema.languages);
+    
+    if (languages.length === 0) {
+      // Inserir idiomas padrão
+      await db.insert(schema.languages).values([
+        { code: "pt", name: "Português" },
+        { code: "en", name: "English" },
+        { code: "es", name: "Español" }
+      ]);
+      
+      console.log("Idiomas padrão inicializados com sucesso!");
+    }
+  } catch (error) {
+    console.error("Erro ao inicializar banco de dados:", error);
+  }
+}
+
+// Inicializa o banco de dados
+initializeDatabase();
 
 const app = express();
 // Aumentar o limite para imagens grandes (50MB)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+// Adicionar suporte a cookies para armazenar preferências de idioma
+app.use(cookieParser());
 
 app.use((req, res, next) => {
   const start = Date.now();
