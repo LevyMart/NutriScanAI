@@ -3,11 +3,12 @@ import HeaderComponent from '@/components/HeaderComponent';
 import CameraView from '@/components/CameraView';
 import AnalysisView from '@/components/AnalysisView';
 import HistoryView from '@/pages/HistoryView';
+import ProfileView from '@/components/ProfileView';
 import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { queryClient } from '@/lib/queryClient';
 
 const Home: React.FC = () => {
-  const [activeView, setActiveView] = useState<'camera' | 'analysis' | 'history'>('camera');
+  const [activeView, setActiveView] = useState<'camera' | 'analysis' | 'history' | 'profile'>('camera');
   const { 
     image, 
     result, 
@@ -44,9 +45,20 @@ const Home: React.FC = () => {
     setActiveView('camera');
   };
 
+  const handleShowProfile = () => {
+    setActiveView('profile');
+  };
+
+  const handleCloseProfile = () => {
+    setActiveView('camera');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <HeaderComponent onHistoryClick={handleShowHistory} />
+      <HeaderComponent 
+        onHistoryClick={handleShowHistory} 
+        onProfileClick={handleShowProfile}
+      />
       
       <main className="flex-1 flex flex-col p-4 max-w-md mx-auto w-full">
         {activeView === 'camera' && (
@@ -66,6 +78,10 @@ const Home: React.FC = () => {
         
         {activeView === 'history' && (
           <HistoryView onClose={handleCloseHistory} />
+        )}
+
+        {activeView === 'profile' && (
+          <ProfileView onClose={handleCloseProfile} />
         )}
       </main>
     </div>
